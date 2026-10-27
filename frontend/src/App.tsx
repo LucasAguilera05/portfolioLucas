@@ -19,7 +19,7 @@ export default function App() {
           <div>
             <p className="tag-mono text-cyan-300">// contacto</p>
             <a href="mailto:tu@email.com" className="mt-2 block text-lg font-semibold text-white hover:text-cyan-200">
-              [EMAIL_ADDRESS]
+              lucasaguilera0506@gmail.com
             </a>
           </div>
           <p className="tag-mono text-slate-600">© {new Date().getFullYear()} · React · Spring Boot · PostgreSQL</p>
