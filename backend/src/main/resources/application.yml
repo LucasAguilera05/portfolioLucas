@@ -39,8 +39,8 @@ spring:
 # Application Custom Configuration
 app:
   admin:
-    username: ${ADMIN_USERNAME:admin}
-    password: ${ADMIN_PASSWORD:Admin123456!}
+    username: ${ADMIN_USERNAME:lucas}
+    password: ${ADMIN_PASSWORD:lucas}
   jwt:
     # 256-bit safe HMAC-SHA secret key
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}

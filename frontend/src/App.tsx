@@ -1,30 +1,31 @@
-import { Hero } from './components/hero/Hero'
-import { Navbar } from './components/layout/Navbar'
-import { ProjectsSection } from './components/projects/ProjectsSection'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { PublicPortfolioPage } from './pages/public/PublicPortfolioPage'
+import { AdminLoginPage } from './pages/admin/AdminLoginPage'
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
+import { ProtectedRoute } from './components/admin/ProtectedRoute'
 
 export default function App() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <ProjectsSection />
-        <section id="experiencia" className="container-page py-16">
-          <p className="tag-mono text-cyan-300">// 02 — experiencia</p>
-          <p className="mt-3 text-slate-500">Próxima iteración.</p>
-        </section>
-      </main>
-      <footer id="contacto" className="border-t border-slate-800/80 py-12">
-        <div className="container-page flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <p className="tag-mono text-cyan-300">// contacto</p>
-            <a href="mailto:tu@email.com" className="mt-2 block text-lg font-semibold text-white hover:text-cyan-200">
-              lucasaguilera0506@gmail.com
-            </a>
-          </div>
-          <p className="tag-mono text-slate-600">© {new Date().getFullYear()} · React · Spring Boot · PostgreSQL</p>
-        </div>
-      </footer>
-    </>
+    <BrowserRouter>
+      <Routes>
+        {/* Vista Pública Principal */}
+        <Route path="/" element={<PublicPortfolioPage />} />
+
+        {/* Panel de Administración (CMS) */}
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+        {/* Rutas no reconocidas */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ExternalLink, FileCode2, Lightbulb, PlayCircle, X } from 'lucide-react'
-import type { Project } from '../../data/projects'
+import { AlertTriangle, ExternalLink, FileCode2, Layers, PlayCircle, Sparkles, X } from 'lucide-react'
+import type { Project } from '../../types/project'
+import { CATEGORY_LABELS } from '../../types/project'
 import { GithubIcon } from '../ui/BrandIcons'
 import { TechBadge } from '../ui/TechBadge'
 import { MediaViewer } from './MediaViewer'
@@ -9,13 +10,6 @@ import { MediaViewer } from './MediaViewer'
 interface ProjectModalProps {
   project: Project
   onClose: () => void
-}
-
-const LAYER_COLORS: Record<string, string> = {
-  Frontend: 'border-cyan-400/30 text-cyan-300',
-  Backend: 'border-emerald-400/30 text-emerald-300',
-  Database: 'border-blue-400/30 text-blue-300',
-  Infra: 'border-slate-600 text-slate-300',
 }
 
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
@@ -38,7 +32,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
     }
   }, [onClose])
 
-  const { links } = project
+  const categoryLabel = CATEGORY_LABELS[project.category] || project.category
 
   return (
     <motion.div
@@ -47,7 +41,11 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       <motion.div
         ref={panelRef}
@@ -63,7 +61,14 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
       >
         <header className="flex items-start justify-between gap-4 border-b border-slate-800 px-5 py-4 sm:px-8">
           <div>
-            <p className="tag-mono text-slate-500">{project.tagline}</p>
+            <div className="flex items-center gap-2">
+              <span className="tag-mono text-cyan-400">{categoryLabel}</span>
+              {project.featured && (
+                <span className="tag-mono inline-flex items-center gap-1 rounded-md border border-cyan-400/40 bg-cyan-950/80 px-2 py-0.5 text-cyan-200">
+                  <Sparkles size={11} className="text-cyan-300" aria-hidden="true" /> Destacado
+                </span>
+              )}
+            </div>
             <h2 id="modal-title" className="mt-1 text-xl font-bold text-white sm:text-2xl">
               {project.title}
             </h2>
@@ -72,7 +77,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Cerrar caso de estudio"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-800 text-slate-400 transition-colors duration-200 hover:bg-slate-800 hover:text-white"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-800 text-slate-400 transition-colors duration-200 hover:bg-slate-800 hover:text-white cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -81,63 +86,55 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
         <div className="space-y-8 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
           <MediaViewer project={project} />
 
-          <dl className="grid grid-cols-3 gap-3">
-            {project.metrics.map((m) => (
-              <div key={m.label} className="rounded-xl border border-slate-800 bg-slate-950/50 p-4 text-center">
-                <dd className="text-xl font-bold text-gradient sm:text-2xl">{m.value}</dd>
-                <dt className="tag-mono mt-1 text-slate-500">{m.label}</dt>
+          {/* Resumen / Descripción corta */}
+          <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-5">
+            <h3 className="tag-mono text-slate-400 uppercase">// Resumen Ejecutivo</h3>
+            <p className="mt-2 text-base leading-relaxed text-slate-200">{project.shortDescription}</p>
+          </div>
+
+          {/* Problema Resuelto */}
+          {project.problemSolved && (
+            <section aria-labelledby="problem-title" className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+              <h3 id="problem-title" className="flex items-center gap-2 text-sm font-semibold text-amber-200">
+                <AlertTriangle size={16} className="text-amber-400" aria-hidden="true" /> Problema de Negocio Resuelto
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-300 whitespace-pre-line">
+                {project.problemSolved}
+              </p>
+            </section>
+          )}
+
+          {/* Detalles de Arquitectura */}
+          {project.architectureDetails && (
+            <section aria-labelledby="arch-title" className="rounded-2xl border border-cyan-500/20 bg-slate-950/50 p-5">
+              <h3 id="arch-title" className="flex items-center gap-2 text-sm font-semibold text-cyan-200">
+                <Layers size={16} className="text-cyan-400" aria-hidden="true" /> Arquitectura y Decisiones Técnicas
+              </h3>
+              <div className="mt-3 text-sm leading-relaxed text-slate-300 whitespace-pre-line font-sans">
+                {project.architectureDetails}
               </div>
-            ))}
-          </dl>
+            </section>
+          )}
 
-          <section aria-labelledby="problem-title" className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-5">
-              <h3 id="problem-title" className="flex items-center gap-2 text-sm font-semibold text-white">
-                <AlertTriangle size={16} className="text-amber-300" aria-hidden="true" /> Problema de Negocio
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-400">{project.problem}</p>
+          {/* Tecnologías */}
+          {project.technologies && project.technologies.length > 0 && (
+            <div>
+              <h3 className="tag-mono text-slate-400 uppercase">// Tecnologías & Herramientas</h3>
+              <ul className="mt-3 flex flex-wrap gap-2" aria-label="Tecnologías utilizadas">
+                {project.technologies.map((t) => (
+                  <li key={t}>
+                    <TechBadge name={t} />
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <Lightbulb size={16} className="text-emerald-300" aria-hidden="true" /> Solución
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-300">{project.solution}</p>
-            </div>
-          </section>
-
-          <section aria-labelledby="arch-title">
-            <h3 id="arch-title" className="text-sm font-semibold text-white">
-              Arquitectura Técnica
-            </h3>
-            <ol className="mt-4 space-y-3 border-l border-slate-800 pl-5">
-              {project.architecture.map((a) => (
-                <li key={a.layer} className="relative">
-                  <span className="absolute top-2 -left-[25px] h-2 w-2 rounded-full bg-slate-600" aria-hidden="true" />
-                  <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={`tag-mono rounded-md border px-2 py-0.5 ${LAYER_COLORS[a.layer]}`}>{a.layer}</span>
-                      <span className="tag-mono text-slate-400">{a.stack}</span>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-400">{a.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          <ul className="flex flex-wrap gap-1.5" aria-label="Tecnologías">
-            {project.technologies.map((t) => (
-              <li key={t}>
-                <TechBadge name={t} />
-              </li>
-            ))}
-          </ul>
+          )}
         </div>
 
         <footer className="flex flex-wrap gap-3 border-t border-slate-800 bg-slate-900/95 px-5 py-4 sm:px-8">
-          {links.live && (
+          {project.liveSystemUrl && (
             <a
-              href={links.live}
+              href={project.liveSystemUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-sky-400 to-emerald-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-[filter] duration-200 hover:brightness-110 active:scale-[0.98]"
@@ -145,27 +142,26 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
               <ExternalLink size={15} aria-hidden="true" /> Abrir Sistema en Vivo
             </a>
           )}
-          {links.demo && (
+          {project.demoEnvironmentUrl && (
             <a
-              href={links.demo}
+              href={project.demoEnvironmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800 active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/40 px-4 py-2.5 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:bg-cyan-900/50 active:scale-[0.98]"
             >
-              <PlayCircle size={15} aria-hidden="true" /> Ver Demo
+              <PlayCircle size={15} className="text-cyan-300" aria-hidden="true" /> Entorno Demo / Swagger
             </a>
           )}
-          {links.repo && (
+          {project.githubUrl && (
             <a
-              href={links.repo}
+              href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800 active:scale-[0.98]"
             >
               <GithubIcon className="h-4 w-4" />
-              Repositorio
+              Código en GitHub
               <FileCode2 size={15} className="text-slate-400" aria-hidden="true" />
-              Docs
             </a>
           )}
         </footer>
